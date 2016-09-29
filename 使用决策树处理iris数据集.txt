@@ -1,0 +1,96 @@
+构造数据集
+>>> from sklearn.datasets import load_iris
+>>> import numpy as np
+>>> iris = load_iris()
+>>> iris.data
+array([[ 5.1,  3.5,  1.4,  0.2],  
+  [ 4.9,  3. ,  1.4,  0.2],
+  ....
+  [ 5.9,  3. ,  5.1,  1.8]])
+>>> iris.target
+array([0, 0, 0, 0, 0, 0, ... , 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,  
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2])
+>>> iris.data.shape  
+(150, 4)		     # 150个样本，每个样本4个特征
+>>> iris.target.shape      # 每个样本的类别
+(150,)
+>>> # 下面开始构造训练集/测试集，120/30
+>>> # 训练集
+>>> train_data = np.concatenate((iris.data[0:40, :], iris.data[50:90, :], iris.data[100:140, :]), axis = 0)
+>>> # 训练集样本类别
+>>> train_target = np.concatenate((iris.target[0:40], iris.target[50:90], iris.target[100:140]), axis = 0)
+>>> # 测试集
+>>> test_data = np.concatenate((iris.data[40:50, :], iris.data[90:100, :], iris.data[140:150, :]), axis = 0)
+>>> #测试集样本类别
+>>> test_target = np.concatenate((iris.target[40:50], iris.target[90:100], iris.target[140:150]), axis = 0)
+
+
+
+基于gini不纯度的决策树
+>>> from sklearn.tree import DecisionTreeClassifier
+>>> clf = DecisionTreeClassifier(criterion='gini')
+>>> clf.fit(train_data, train_target)  # 训练决策树
+DecisionTreeClassifier(criterion='gini', max_depth=None, max_features=None,  
+  max_leaf_nodes=None, min_samples_leaf=1, min_samples_split=2,
+  min_weight_fraction_leaf=0.0, random_state=None,
+  splitter='best')
+>>> predict_target = clf.predict(test_data)  # 预测
+>>> predict_target
+array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2,  
+       2, 2, 2, 2, 2, 2, 2])
+>>> sum(predict_target == test_target)  # 预测成功的数量
+30  
+
+
+
+下面可视化训练好的这颗决策树：
+>>> from sklearn.externals.six import StringIO
+>>> from sklearn.tree import export_graphviz
+>>> with open("iris.dot", 'w') as f:
+...     f = export_graphviz(clf, out_file=f)
+
+
+
+然后，进入shell：
+
+$ sudo apt-get install graphviz 
+$ dot -Tpng iris.dot -o tree.png  # 生成png图片
+$ dot -Tpdf iris.dot -o tree.pdf  # 生成pdf
+
+
+
+
+基于信息增益的决策树
+
+Information Gain，信息增益。
+
+
+>>> clf = DecisionTreeClassifier(criterion='entropy')
+>>> clf2 = DecisionTreeClassifier(criterion='entropy')
+>>> clf2.fit(train_data, train_target)
+DecisionTreeClassifier(criterion='entropy', max_depth=None, max_features=None,  
+  max_leaf_nodes=None, min_samples_leaf=1, min_samples_split=2,
+  min_weight_fraction_leaf=0.0, random_state=None,
+  splitter='best')
+>>> predict_target = clf2.predict(test_data)
+>>> sum(predict_target == test_target)
+30  
+>>> with open("iris2.dot", 'w') as out:
+...     out = export_graphviz(clf2, out_file=out)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
